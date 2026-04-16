@@ -26,7 +26,8 @@ function createSession() {
     elapsedSeconds: 0,
     completedTasks: [],
     actions: 0,
-    moodScore: 3
+    moodScore: 3,
+    stressLevel: 3
   };
 }
 
@@ -84,6 +85,19 @@ function getAdaptiveBurnRate(session, baseline) {
   return Math.max(0, Math.min(1, Number(score.toFixed(2))));
 }
 
+function clampCheckInValue(value) {
+  return Math.max(1, Math.min(5, Number(value) || 3));
+}
+
+function readStoredExtensionCheckIn() {
+  try {
+    const rawValue = window.localStorage.getItem("wellbyExtensionCheckIn");
+    return rawValue ? JSON.parse(rawValue) : null;
+  } catch {
+    return null;
+  }
+}
+
 function CameraIndicator({ colors, active, onOpen }) {
   return (
     <button
@@ -117,6 +131,10 @@ export default function App() {
   const [sessions, setSessions] = useLocalStorage(STORAGE_KEYS.sessions, []);
   const [fatigueOptIn, setFatigueOptIn] = useLocalStorage(STORAGE_KEYS.fatigueOptIn, false);
   const [breakLogs, setBreakLogs] = useLocalStorage(STORAGE_KEYS.breakLogs, []);
+  const [extensionPromptInterval, setExtensionPromptInterval] = useLocalStorage(
+    STORAGE_KEYS.extensionPromptInterval,
+    5
+  );
   const [lastLoginName, setLastLoginName] = useLocalStorage(STORAGE_KEYS.lastLoginName, "");
   const [plannerTasks, setPlannerTasks] = useLocalStorage(STORAGE_KEYS.plannerTasks, []);
   const [dashboardSections, setDashboardSections] = useLocalStorage(
@@ -146,6 +164,7 @@ export default function App() {
   const [fatiguePreviewPinned, setFatiguePreviewPinned] = useState(false);
   const apiRefreshRef = useRef(0);
   const activeToastIdRef = useRef(null);
+  const lastExtensionSyncAtRef = useRef(0);
 
   const baseline = useMemo(() => {
     if (sessions.length < 3) {
@@ -264,6 +283,126 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    function applyExtensionCheckIn({ moodScore, stressLevel, intent, updatedAt }) {
+      const nextUpdatedAt = Number(updatedAt) || Date.now();
+      if (nextUpdatedAt <= lastExtensionSyncAtRef.current) {
+        return;
+      }
+
+      lastExtensionSyncAtRef.current = nextUpdatedAt;
+      const nextMoodScore = clampCheckInValue(moodScore);
+      const nextStressLevel = clampCheckInValue(stressLevel);
+
+      setSession((current) => ({
+        ...current,
+        moodScore: nextMoodScore,
+        stressLevel: nextStressLevel
+      }));
+
+      if (intent === "break" || nextStressLevel >= 4) {
+        setBanner("Wellby picked up a higher-stress browser check-in and updated your session.");
+      } else {
+        setBanner("Wellby synced your quick browser check-in.");
+      }
+    }
+
+    function syncStoredCheckIn() {
+      const storedCheckIn = readStoredExtensionCheckIn();
+      if (!storedCheckIn) {
+        return;
+      }
+
+      applyExtensionCheckIn(storedCheckIn);
+    }
+
+    function handleExtensionMessage(event) {
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+
+      if (event.data?.source !== "wellby-extension" || event.data?.type !== "MOOD_SYNC") {
+        return;
+      }
+
+      applyExtensionCheckIn(event.data);
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const extensionMoodScore = searchParams.get("extensionMoodScore");
+    const extensionStressLevel = searchParams.get("extensionStressLevel");
+    const extensionIntent = searchParams.get("extensionIntent");
+    const extensionMoodUpdatedAt = searchParams.get("extensionMoodUpdatedAt");
+
+    if (extensionMoodScore !== null || extensionStressLevel !== null) {
+      applyExtensionCheckIn({
+        moodScore: extensionMoodScore,
+        stressLevel: extensionStressLevel,
+        intent: extensionIntent,
+        updatedAt: extensionMoodUpdatedAt
+      });
+
+      searchParams.delete("extensionMoodScore");
+      searchParams.delete("extensionStressLevel");
+      searchParams.delete("extensionIntent");
+      searchParams.delete("extensionMoodUpdatedAt");
+      const nextQuery = searchParams.toString();
+      const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", nextUrl);
+    }
+
+    window.addEventListener("message", handleExtensionMessage);
+    window.addEventListener("focus", syncStoredCheckIn);
+    document.addEventListener("visibilitychange", syncStoredCheckIn);
+    syncStoredCheckIn();
+
+    return () => {
+      window.removeEventListener("message", handleExtensionMessage);
+      window.removeEventListener("focus", syncStoredCheckIn);
+      document.removeEventListener("visibilitychange", syncStoredCheckIn);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.postMessage(
+      {
+        source: "wellby-app",
+        type: "SETTINGS_SYNC",
+        extensionPromptInterval,
+        theme,
+        mode
+      },
+      window.location.origin
+    );
+  }, [extensionPromptInterval, theme, mode]);
+
+  useEffect(() => {
+    const openTasks = plannerTasks.filter((task) => !task.completedAt);
+    const currentTask = openTasks[0]?.title ?? "";
+    const activeTasks = openTasks.map((task) => task.title);
+    const plannerTaskPayload = plannerTasks.map((task) => ({
+      id: task.id,
+      title: task.title,
+      dueAt: task.dueAt,
+      completedAt: task.completedAt
+    }));
+
+    window.localStorage.setItem("wellbyCurrentTask", currentTask);
+    window.localStorage.setItem("wellbyActiveTasks", JSON.stringify(activeTasks));
+    window.localStorage.setItem("wellbyPlannerTasks", JSON.stringify(plannerTaskPayload));
+
+    window.postMessage(
+      {
+        source: "wellby-app",
+        type: "TASK_SYNC",
+        currentTask,
+        activeTasks,
+        plannerTasks: plannerTaskPayload
+      },
+      window.location.origin
+    );
+  }, [plannerTasks]);
+
+  useEffect(() => {
     if (!profile) {
       return;
     }
@@ -282,7 +421,8 @@ export default function App() {
           10,
           Math.max(
             0,
-            (6 - session.moodScore) * 1.4 +
+            (6 - session.moodScore) * 1.1 +
+              (session.stressLevel - 1) * 1.15 +
               Math.min(4, session.elapsedSeconds / 3600) +
               Math.max(0, (averageTaskSeconds - (baseline?.avgTaskSeconds || averageTaskSeconds)) / 600) +
               plannerInsights.overdueCount * 0.8 +
@@ -357,6 +497,7 @@ export default function App() {
     session.completedTasks,
     session.actions,
     session.moodScore,
+    session.stressLevel,
     baseline,
     breakCredit,
     session.startedAt,
@@ -716,6 +857,8 @@ export default function App() {
             return next;
           });
         }}
+        extensionPromptInterval={extensionPromptInterval}
+        onSetExtensionPromptInterval={setExtensionPromptInterval}
         fatigueStatus={fatigueStatus}
         mode={mode}
         onToggleMode={toggleMode}

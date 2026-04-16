@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext.jsx";
 import LeafIcon from "./LeafIcon.jsx";
+import { EXTENSION_PROMPT_INTERVAL_OPTIONS } from "../lib/constants.js";
 import { hexToRgba } from "../lib/color.js";
 
 const THEME_OPTIONS = [
@@ -13,6 +14,8 @@ const THEME_OPTIONS = [
 export default function SettingsPage({
   fatigueOptIn,
   onToggleFatigue,
+  extensionPromptInterval,
+  onSetExtensionPromptInterval,
   fatigueStatus,
   mode,
   onToggleMode,
@@ -129,6 +132,46 @@ export default function SettingsPage({
               >
                 {fatigueOptIn ? "Enabled" : "Disabled"}
               </button>
+            </div>
+
+            <div className="wellby-glass-soft mt-4 rounded-[24px] p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-bold">Browser check-in timer</h2>
+                  <p className="mt-2 text-sm leading-7" style={{ color: colors.muted }}>
+                    Choose how often the Chrome extension gently opens its quick mood and stress check-in on other websites.
+                  </p>
+                </div>
+                <div
+                  className="rounded-full px-4 py-2 text-sm font-bold"
+                  style={{ background: colors.sidebarBg, color: colors.wordmark }}
+                >
+                  {extensionPromptInterval} min
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {EXTENSION_PROMPT_INTERVAL_OPTIONS.map((option) => {
+                  const active = extensionPromptInterval === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => onSetExtensionPromptInterval(option.value)}
+                      className="wellby-button rounded-[22px] border p-4 text-left"
+                      style={{
+                        background: active ? colors.navActiveBg : colors.cardBg,
+                        borderColor: active ? colors.navActiveBorder : colors.cardBorder,
+                        color: active ? colors.navActive : colors.secondaryText
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-bold">{option.label}</span>
+                        {active ? <span className="text-sm font-bold">Selected</span> : null}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </section>
         </div>

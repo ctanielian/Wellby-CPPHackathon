@@ -1,0 +1,380 @@
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Mulish:wght@400;600;700;800&display=swap");
+
+#wellby-floating-launcher {
+  --wellby-ext-panel-bg: rgba(255, 250, 244, 0.99);
+  --wellby-ext-panel-bg-soft: rgba(255, 255, 255, 0.78);
+  --wellby-ext-rail-bg: rgba(255, 250, 244, 0.98);
+  --wellby-ext-text: #4b3423;
+  --wellby-ext-muted: #8e7158;
+  --wellby-ext-border: #ddcdbd;
+  --wellby-ext-border-soft: #eadccf;
+  --wellby-ext-accent: #8e7158;
+  --wellby-ext-accent-strong: #4b3423;
+  --wellby-ext-accent-text: #fff7ee;
+  --wellby-ext-shadow: rgba(75, 52, 35, 0.14);
+  position: fixed;
+  top: 50%;
+  right: 10px;
+  z-index: 2147483646;
+  transform: translateY(-50%);
+  font-family: "Mulish", "Segoe UI", system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wellby-ext-text);
+}
+
+#wellby-floating-launcher.is-dragging {
+  cursor: grabbing;
+}
+
+#wellby-floating-launcher .wellby-rail-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 36px;
+  border: 1px solid var(--wellby-ext-border);
+  border-radius: 999px;
+  background: var(--wellby-ext-rail-bg);
+  box-shadow: 0 14px 28px var(--wellby-ext-shadow);
+  color: var(--wellby-ext-text);
+  cursor: grab;
+  overflow: hidden;
+  padding: 7px 8px;
+  transition: transform 180ms ease, box-shadow 180ms ease, min-width 180ms ease, padding 180ms ease;
+}
+
+#wellby-floating-launcher .wellby-rail-button:hover,
+#wellby-floating-launcher.is-open .wellby-rail-button {
+  box-shadow: 0 18px 36px var(--wellby-ext-shadow);
+  min-width: 78px;
+  transform: translateX(-2px);
+  padding-inline: 10px 12px;
+}
+
+#wellby-floating-launcher.is-dragging .wellby-rail-button {
+  cursor: grabbing;
+}
+
+#wellby-floating-launcher .wellby-rail-button:focus-visible,
+#wellby-floating-launcher .wellby-action-button:focus-visible,
+#wellby-floating-launcher .wellby-mood-option:focus-visible {
+  outline: 2px solid var(--wellby-ext-accent);
+  outline-offset: 2px;
+}
+
+.wellby-launcher-leaf {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.wellby-launcher-text {
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width 180ms ease, opacity 180ms ease;
+}
+
+#wellby-floating-launcher .wellby-rail-button:hover .wellby-launcher-text,
+#wellby-floating-launcher.is-open .wellby-launcher-text {
+  max-width: 60px;
+  opacity: 1;
+}
+
+#wellby-floating-launcher .wellby-mood-panel {
+  width: 258px;
+  border: 1px solid var(--wellby-ext-border);
+  border-radius: 18px 0 0 18px;
+  background: var(--wellby-ext-panel-bg);
+  box-shadow: 0 22px 46px var(--wellby-ext-shadow);
+  color: var(--wellby-ext-text);
+  padding: 18px 18px 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+#wellby-floating-launcher .wellby-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#wellby-floating-launcher .wellby-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#wellby-floating-launcher .wellby-panel-title {
+  font-family: "Merriweather", Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--wellby-ext-text);
+}
+
+#wellby-floating-launcher .wellby-drag-handle {
+  border: 1px solid var(--wellby-ext-border);
+  border-radius: 999px;
+  background: var(--wellby-ext-panel-bg-soft);
+  color: var(--wellby-ext-muted);
+  cursor: grab;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 6px 8px;
+  text-transform: uppercase;
+}
+
+#wellby-floating-launcher .wellby-view-toggle {
+  border: 1px solid var(--wellby-ext-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--wellby-ext-muted);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 6px 8px;
+  text-transform: uppercase;
+}
+
+#wellby-floating-launcher.is-dragging .wellby-drag-handle {
+  cursor: grabbing;
+}
+
+#wellby-floating-launcher .wellby-panel-body {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-task-line {
+  margin-top: 12px;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+#wellby-floating-launcher .wellby-task-label {
+  flex: 0 0 auto;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-task-value {
+  min-width: 0;
+  color: var(--wellby-ext-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#wellby-floating-launcher .wellby-task-panel {
+  margin-top: 8px;
+  border: 1px solid var(--wellby-ext-border-soft);
+  border-radius: 16px;
+  background: var(--wellby-ext-panel-bg-soft);
+  padding: 8px 9px;
+}
+
+#wellby-floating-launcher .wellby-check-section {
+  margin-top: 12px;
+  border: 1px solid var(--wellby-ext-border-soft);
+  border-radius: 18px;
+  background: var(--wellby-ext-panel-bg-soft);
+  padding: 10px 11px;
+}
+
+#wellby-floating-launcher .wellby-check-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#wellby-floating-launcher .wellby-section-toggle {
+  border: 1px solid var(--wellby-ext-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--wellby-ext-muted);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 8px;
+}
+
+#wellby-floating-launcher .wellby-section-summary {
+  margin-top: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wellby-ext-text);
+}
+
+#wellby-floating-launcher .wellby-task-panel-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-task-list {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#wellby-floating-launcher .wellby-quote {
+  margin-top: 10px;
+  border-top: 1px solid var(--wellby-ext-border-soft);
+  padding-top: 8px;
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-task-item,
+#wellby-floating-launcher .wellby-task-empty {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--wellby-ext-text);
+}
+
+#wellby-floating-launcher .wellby-task-item {
+  border: 1px solid var(--wellby-ext-border-soft);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.38);
+  padding: 7px 8px;
+}
+
+#wellby-floating-launcher .wellby-task-item.is-overdue {
+  border-color: rgba(196, 112, 112, 0.45);
+}
+
+#wellby-floating-launcher .wellby-task-item.is-complete {
+  border-color: rgba(122, 184, 144, 0.42);
+}
+
+#wellby-floating-launcher .wellby-task-item-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+#wellby-floating-launcher .wellby-task-item-meta {
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-task-empty {
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-section-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-mood-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+#wellby-floating-launcher .wellby-mood-option {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid var(--wellby-ext-border);
+  background: var(--wellby-ext-panel-bg-soft);
+  color: var(--wellby-ext-text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#wellby-floating-launcher .wellby-mood-option.is-selected {
+  background: var(--wellby-ext-accent);
+  border-color: var(--wellby-ext-accent);
+  color: var(--wellby-ext-accent-text);
+}
+
+#wellby-floating-launcher .wellby-feedback {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--wellby-ext-muted);
+}
+
+#wellby-floating-launcher .wellby-action-button {
+  flex: 1 1 auto;
+  border: none;
+  border-radius: 999px;
+  background: var(--wellby-ext-accent-strong);
+  color: var(--wellby-ext-accent-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
+#wellby-floating-launcher .wellby-action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+#wellby-floating-launcher .wellby-action-button,
+#wellby-floating-launcher .wellby-dismiss-button,
+#wellby-floating-launcher .wellby-section-toggle,
+#wellby-floating-launcher .wellby-view-toggle {
+  font-family: "Mulish", "Segoe UI", system-ui, sans-serif;
+}
+
+#wellby-floating-launcher .wellby-dismiss-button {
+  flex: 0 0 auto;
+  border: 1px solid var(--wellby-ext-border);
+  border-radius: 999px;
+  background: var(--wellby-ext-panel-bg-soft);
+  color: var(--wellby-ext-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+#wellby-floating-launcher .wellby-dismiss-button:focus-visible {
+  outline: 2px solid var(--wellby-ext-accent);
+  outline-offset: 2px;
+}

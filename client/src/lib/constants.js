@@ -5,6 +5,7 @@ export const STORAGE_KEYS = {
   fatigueOptIn: "wellby.fatigueOptIn",
   breakLogs: "wellby.breakLogs",
   gameScores: "wellby.gameScores",
+  extensionPromptInterval: "wellby.extensionPromptInterval",
   lastLoginName: "wellby.lastLoginName",
   plannerTasks: "wellby.plannerTasks",
   dashboardSections: "wellby.dashboardSections"
@@ -33,4 +34,11 @@ export const SENIORITY_OPTIONS = [
   { value: 3, label: "Senior" },
   { value: 4, label: "Lead / Staff" },
   { value: 5, label: "Director+" }
+];
+
+export const EXTENSION_PROMPT_INTERVAL_OPTIONS = [
+  { value: 5, label: "Every 5 minutes" },
+  { value: 10, label: "Every 10 minutes" },
+  { value: 15, label: "Every 15 minutes" },
+  { value: 30, label: "Every 30 minutes" }
 ];
