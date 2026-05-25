@@ -60,8 +60,5 @@ createApp()
     app.listen(port, () => {
       console.log(`Wellby listening on http://localhost:${port}`);
     });
-  })
-  .catch((error) => {
-    console.error("Failed to start Wellby", error);
-    process.exit(1);
   });
+
